@@ -136,12 +136,25 @@ export const IDE: React.FC<IDEProps> = ({
     if (!chatInput.trim() || !chatSession.current || !isAiConfigured) return;
     const userMsg = chatInput;
     setChatMessages(p => [...p, {role: 'user', text: userMsg}]);
-    setChatInput(''); setIsAiLoading(true);
+    setChatInput('');
+    setIsAiLoading(true);
     try {
         const response = await chatSession.current.sendMessage({ message: userMsg });
-        setChatMessages(p => [...p, {role: 'model', text: response.text || "..."}]);
-    } catch { setChatMessages(p => [...p, {role: 'model', text: "Lỗi kết nối AI."}]); } 
-    finally { setIsAiLoading(false); }
+        setChatMessages(p => [...p, {role: 'model', text: response.text || "Hmm, thầy chưa biết trả lời câu này."}]);
+    } catch (error) {
+        console.error("Gemini Chat Error:", error);
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        setChatMessages(p => [
+            ...p, 
+            {
+              role: 'model', 
+              text: `Rất tiếc, đã xảy ra lỗi kết nối. 🛠️\n\nVui lòng kiểm tra lại VITE_API_KEY trên Vercel.\n\nChi tiết lỗi: ${errorMessage}`
+            }
+        ]);
+    } 
+    finally { 
+        setIsAiLoading(false); 
+    }
   };
 
   // Updated typoClass with optimized colors for dark mode neon/glass
@@ -392,7 +405,7 @@ export const IDE: React.FC<IDEProps> = ({
                  <div className="w-12 h-1.5 bg-text-secondary/20 rounded-full mx-auto mt-3 mb-1"></div>
                  <div className="p-3 px-4 bg-transparent flex justify-between items-center shrink-0"><span className="font-bold text-sm flex gap-2 items-center text-electric-indigo"><MessageCircle size={18}/> Chat với Thầy Thạch</span><button onClick={() => setIsChatOpen(false)} className="hover:bg-black/5 p-1.5 rounded-full"><X size={18}/></button></div>
                  <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-bg-main/30">
-                    {chatMessages.map((m, i) => <div key={i} className={`text-sm p-3.5 rounded-2xl max-w-[85%] leading-relaxed shadow-sm ${m.role === 'user' ? 'ml-auto bg-electric-indigo text-white rounded-tr-sm' : 'bg-white dark:bg-black/20 text-text-primary rounded-tl-sm border border-text-secondary/5'}`}>{m.text}</div>)}
+                    {chatMessages.map((m, i) => <div key={i} className={`text-sm p-3.5 rounded-2xl max-w-[85%] leading-relaxed shadow-sm ${m.role === 'user' ? 'ml-auto bg-electric-indigo text-white rounded-tr-sm' : 'bg-white dark:bg-black/20 text-text-primary rounded-tl-sm border border-text-secondary/5 whitespace-pre-wrap'}`}>{m.text}</div>)}
                     <div ref={messagesEndRef} />
                     {isAiLoading && <div className="flex gap-1 ml-4 mt-2"><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce"></div><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce delay-75"></div><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce delay-150"></div></div>}
                  </div>
