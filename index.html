@@ -56,6 +56,11 @@
     <!-- Performance Optimization for Trinket -->
     <link rel="preconnect" href="https://trinket.io">
     <link rel="dns-prefetch" href="https://trinket.io">
+
+    <!-- Syntax Highlighting (Atom One Dark) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
     
     <style>
       :root {
@@ -121,6 +126,12 @@
       .neu-inset {
         box-shadow: var(--shadow-in);
         border-radius: 12px;
+      }
+
+      /* Syntax Highlighting Overrides */
+      .hljs {
+        background: transparent !important; /* Let parent container handle background */
+        padding: 0 !important;
       }
     </style>
   <script type="importmap">

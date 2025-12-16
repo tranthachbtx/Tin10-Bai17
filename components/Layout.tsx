@@ -141,7 +141,7 @@ export const Layout: React.FC<LayoutProps> = ({
               className="font-display font-bold tracking-tight cursor-pointer text-electric-indigo truncate text-lg"
               onClick={() => setView(ViewState.LANDING)}
             >
-              THTP BÙI THỊ XUÂN
+              THTP BÙI THỊ XUÂN - MŨI NÉ
             </div>
           )}
         </div>

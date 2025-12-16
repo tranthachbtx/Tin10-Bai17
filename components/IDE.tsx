@@ -82,6 +82,7 @@ export const IDE: React.FC<IDEProps> = ({
   const chatSession = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const theoryScrollRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setShowConfetti(false); setShowHint(false); setShowCodeSuggestion(false); setQuizState({}); setQuizResults({});
@@ -91,6 +92,15 @@ export const IDE: React.FC<IDEProps> = ({
     chatSession.current = createAiMentor(currentLesson.content);
     setChatMessages([{role: 'model', text: `Chào em! Thầy là trợ lý AI ảo. Bài học hiện tại là "${currentLesson.title}".`}]);
   }, [currentLesson]);
+
+  // Syntax Highlighting Effect
+  useEffect(() => {
+    if (showCodeSuggestion && codeRef.current && (window as any).hljs) {
+        // Reset highlighted state to ensure re-highlighting works if content changed
+        delete (codeRef.current.dataset as any).highlighted;
+        (window as any).hljs.highlightElement(codeRef.current);
+    }
+  }, [showCodeSuggestion, currentLesson.codeSnippet]);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages, isChatOpen]);
 
@@ -280,7 +290,7 @@ export const IDE: React.FC<IDEProps> = ({
                  </div>
                )}
 
-               {/* Code Snippet - Removed External Link button from here as it's now in Header */}
+               {/* Code Snippet - Using Highlight.js */}
                {currentLesson.codeSnippet && (
                  <div className="mt-10 neu-out rounded-2xl overflow-hidden border border-text-secondary/10 bg-bg-main dark:bg-black/30">
                     <div className="flex justify-between items-center px-4 py-3 bg-text-primary/5 border-b border-white/5">
@@ -294,11 +304,15 @@ export const IDE: React.FC<IDEProps> = ({
                     <AnimatePresence>
                         {showCodeSuggestion ? (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                              <div 
-                                className="p-4 md:p-6 bg-[#1E1E1E] text-[#A9B7C6] font-mono text-[15px] md:text-base overflow-x-auto whitespace-pre leading-relaxed select-none"
-                                onCopy={(e) => e.preventDefault()}
-                              >
-                                  {currentLesson.codeSnippet}
+                              <div className="bg-[#282c34]">
+                                <pre className="m-0 p-4 md:p-6 overflow-x-auto custom-scrollbar">
+                                    <code 
+                                      ref={codeRef}
+                                      className="language-python font-mono text-[15px] md:text-base leading-relaxed bg-transparent"
+                                    >
+                                        {currentLesson.codeSnippet}
+                                    </code>
+                                </pre>
                               </div>
                           </motion.div>
                         ) : (
