@@ -29,6 +29,7 @@ export interface LessonSegment {
   title: string;
   content: string; // Markdown/HTML supported
   codeSnippet?: string; // Initial code for the editor
+  practiceQuestion?: string; // Specific task description for the user to code
   solution?: string; // Expected output or regex check
   hint?: string; // Static hint for the user
   type: 'theory' | 'practice' | 'quiz';

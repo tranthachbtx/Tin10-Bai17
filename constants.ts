@@ -68,10 +68,8 @@ export const PYTHON_COURSE: Course = {
             <p class="text-cyber-cyan font-bold text-sm md:text-lg uppercase mb-1">💡 Pro Tip:</p>
             <p class="text-text-primary text-[13.5px] md:text-[18px]">Biến giống như Saved Game vậy. Bạn lưu máu, level, tên nhân vật vào biến để lần sau dùng tiếp!</p>
         </div>
-
-        <p class="mb-2 text-[14px] md:text-[20px] text-text-primary"><strong>🎮 Thử ngay nào:</strong></p>
-        <p class="text-text-primary text-[13.5px] md:text-[20px] mb-2">Bạn hãy nhìn sang màn hình đen bên phải (nhấn tab <strong>Code</strong> trên điện thoại). Hãy gõ thử dòng này nha:</p>
       `,
+      practiceQuestion: "Bạn hãy tạo một biến tên là `tuoi` và gán cho nó giá trị là 16 (hoặc tuổi thật của bạn). Sau đó dùng lệnh `print(tuoi)` để in nó ra màn hình. Thử tăng tuổi lên 1 đơn vị xem sao!",
       codeSnippet: `# Tạo một biến tên là 'tuoi' và gán bằng 16
 tuoi = 16
 
@@ -125,6 +123,7 @@ print(tuoi)`
           <li>Chữ viết: <code>ten = "Cyber Bot"</code> (Nhớ dấu nháy kép " " nhé!)</li>
         </ul>
       `,
+      practiceQuestion: "Tạo 2 biến: `qua = 10` và `ten` là tên của bạn (nhớ để trong ngoặc kép). Sau đó in ra lời chào gồm cả tên và số quà bạn có.",
       codeSnippet: `# 1. Tạo biến 'qua' và gán giá trị là số 10
 qua = 10
 
@@ -180,6 +179,7 @@ print("Bạn có", qua, "món quà")`
           </div>
         </div>
       `,
+      practiceQuestion: "Cho a = 10, b = 3. Hãy viết lệnh in ra kết quả của: Tổng a+b, Chia lấy nguyên (//), Chia lấy dư (%) và a lũy thừa b (**).",
       codeSnippet: `a = 10
 b = 3
 
@@ -227,6 +227,7 @@ print("2 mũ 3 =", 2**3)`
           </div>
         </div>
       `,
+      practiceQuestion: "Tạo 2 biến 'ho' và 'ten'. Dùng dấu (+) để nối chúng lại thành 'ho_va_ten' (nhớ thêm dấu cách ở giữa). Sau đó dùng dấu (*) để in chữ 'Hi' 5 lần.",
       codeSnippet: `ho = "Nguyễn"
 ten = "Văn A"
 
@@ -371,6 +372,7 @@ print(cuoi)`
             </ol>
         </div>
       `,
+      practiceQuestion: "1. Tạo biến `tuoi_cua_ban` (gán tuổi bạn). 2. Tạo biến `tuoi_cho` bằng `tuoi_cua_ban * 7`. 3. In kết quả ra màn hình.",
       codeSnippet: `# Tính tuổi theo hệ "gâu gâu"
 tuoi_cua_ban = 16
 
@@ -403,6 +405,7 @@ print("Tuổi của tớ theo hệ chó là:", tuoi_cho)`
 
         <p class="text-text-primary text-[13.5px] md:text-[20px] p-4 neu-inset rounded-xl bg-bg-main border border-white/10">Hãy tính <strong>Tổng tiền</strong> phải trả cho cả nhóm.</p>
       `,
+      practiceQuestion: "Tạo biến `gia_ly` (25000) và `so_nguoi` (5). Tính `tong_tien = gia_ly * so_nguoi` rồi in kết quả ra.",
       codeSnippet: `gia_ly = 25000
 so_nguoi = 5
 
@@ -431,6 +434,7 @@ print("Tổng thiệt hại là:", tong_tien)`
             </ul>
         </div>
       `,
+      practiceQuestion: "Steve có 500 block. Hãy tính số stack đầy (dùng // 64) và số block lẻ còn thừa (dùng % 64) rồi in kết quả.",
       codeSnippet: `tong_block = 500
 mot_stack = 64
 
@@ -456,6 +460,7 @@ print("Steve có", so_stack, "stack và dư", so_du, "block")`
             Hãy viết chương trình tính <strong>Chu vi</strong> của hình chữ nhật đó.
         </p>
       `,
+      practiceQuestion: "Hoàn thiện code bên dưới để tính chu vi hình chữ nhật: `chu_vi = (dai + rong) * 2`.",
       codeSnippet: `dai = 15
 rong = 8
 
@@ -478,6 +483,7 @@ rong = 8
             Hãy tính điểm trung bình cộng của 3 môn này.
         </p>
       `,
+      practiceQuestion: "Hãy viết công thức tính điểm trung bình cộng của 3 môn: `(toan + van + anh) / 3` và in kết quả.",
       codeSnippet: `toan = 8.5
 van = 7.0
 anh = 9.0
@@ -504,6 +510,7 @@ anh = 9.0
             <li>1 phút = 60 giây</li>
         </ul>
       `,
+      practiceQuestion: "Viết lệnh tính tổng số giây: `tong_giay = (gio * 3600) + (phut * 60)`.",
       codeSnippet: `gio = 2
 phut = 30
 
@@ -530,6 +537,7 @@ phut = 30
         </div>
         <p class="text-text-primary text-[13.5px] md:text-[20px]">Hãy viết chương trình quy đổi số tiền thưởng này ra tiền Việt Nam Đồng nhé!</p>
       `,
+      practiceQuestion: "Nhập code để quy đổi tiền: `tien_viet = cyber_gold * ty_gia`. Đừng quên lệnh `print(tien_viet)`.",
       codeSnippet: `cyber_gold = 500
 ty_gia = 23000
 
@@ -562,6 +570,7 @@ ty_gia = 23000
         </div>
         <p class="text-text-primary text-[13.5px] md:text-[20px]">Hãy tính xem chỉ số Power của Robot là bao nhiêu?</p>
       `,
+      practiceQuestion: "Viết lệnh tính: `power = tan_cong / (toc_do ** 2)`. In kết quả power.",
       codeSnippet: `tan_cong = 8000
 toc_do = 20
 
@@ -596,6 +605,7 @@ toc_do = 20
 
         <p class="text-text-primary text-[13.5px] md:text-[20px]">Hãy tính xem con tàu mất bao nhiêu <strong>giờ</strong> để đến nơi?</p>
       `,
+      practiceQuestion: "Viết lệnh tính: `thoi_gian = quang_duong / van_toc`. In kết quả thời gian bay.",
       codeSnippet: `quang_duong = 225000000
 van_toc = 50000
 

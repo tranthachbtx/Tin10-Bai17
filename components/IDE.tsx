@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { MessageCircle, CheckCircle, ChevronRight, ChevronLeft, Send, X, Lightbulb, Terminal, Eye, EyeOff, AlertCircle, Info, Map, Star, Cloud } from 'lucide-react';
+import { MessageCircle, CheckCircle, ChevronRight, ChevronLeft, Send, X, Lightbulb, Terminal, Eye, EyeOff, AlertCircle, Info, Map, Star, Cloud, Code } from 'lucide-react';
 import { PYTHON_COURSE } from '../constants';
 import { createAiMentor } from '../services/gemini';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
@@ -52,7 +52,7 @@ const Confetti: React.FC = () => {
          <h2 className="text-4xl md:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-electric-indigo to-neon-serpent mb-3 mt-4">
             XUẤT SẮC!
          </h2>
-         <p className="text-lg text-text-secondary font-soft font-bold">Bạn đã hoàn thành bài học này!</p>
+         <p className="text-lg text-text-secondary font-soft font-bold">Tiếp tục bạn ơi</p>
          <div className="mt-4 flex justify-center gap-2">
             <div className="w-2 h-2 rounded-full bg-electric-indigo animate-ping"></div>
             <div className="w-2 h-2 rounded-full bg-neon-serpent animate-ping delay-100"></div>
@@ -290,11 +290,30 @@ export const IDE: React.FC<IDEProps> = ({
                  </div>
                )}
 
+               {/* Practice Question Block (New) */}
+               {currentLesson.practiceQuestion && (
+                 <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-10 neu-out rounded-2xl p-5 md:p-6 border-l-8 border-electric-indigo bg-bg-main relative overflow-hidden"
+                 >
+                    <div className="absolute top-0 right-0 p-3 opacity-5 pointer-events-none">
+                        <Code size={100} className="text-electric-indigo"/>
+                    </div>
+                    <h4 className="font-bold text-electric-indigo text-lg md:text-2xl mb-3 flex items-center gap-2 uppercase tracking-wide">
+                        <Terminal size={24}/> Nhiệm vụ Code
+                    </h4>
+                    <p className="text-[16px] md:text-[22px] text-text-primary leading-relaxed font-medium">
+                        {currentLesson.practiceQuestion}
+                    </p>
+                 </motion.div>
+               )}
+
                {/* Code Snippet - Using Highlight.js */}
                {currentLesson.codeSnippet && (
-                 <div className="mt-10 neu-out rounded-2xl overflow-hidden border border-text-secondary/10 bg-bg-main dark:bg-black/30">
+                 <div className="mt-8 neu-out rounded-2xl overflow-hidden border border-text-secondary/10 bg-bg-main dark:bg-black/30">
                     <div className="flex justify-between items-center px-4 py-3 bg-text-primary/5 border-b border-white/5">
-                        <span className="text-sm font-mono font-bold text-text-secondary flex gap-2 items-center uppercase"><Terminal size={14} className="text-neon-serpent"/> Code mẫu</span>
+                        <span className="text-sm font-mono font-bold text-text-secondary flex gap-2 items-center uppercase"><Eye size={14} className="text-neon-serpent"/> Code mẫu (Tham khảo)</span>
                         <div className="flex gap-2">
                             <button onClick={() => setShowCodeSuggestion(!showCodeSuggestion)} className="text-sm font-bold text-electric-indigo flex gap-1 items-center bg-electric-indigo/10 px-2 py-1.5 rounded-lg hover:bg-electric-indigo/20 transition-colors">
                                 {showCodeSuggestion ? <><EyeOff size={14}/> Ẩn</> : <><Eye size={14}/> Xem Code</>}
@@ -319,8 +338,8 @@ export const IDE: React.FC<IDEProps> = ({
                           <div className="py-12 text-center text-sm text-text-secondary bg-black/5 flex flex-col items-center gap-3">
                               <span className="text-4xl">🧑‍💻</span>
                               <div className="flex flex-col gap-1">
-                                <span>Hãy thử tự viết code trước khi xem đáp án nhé!</span>
-                                <span className="text-xs opacity-70">Nhấn nút "Thực hành (Trinket)" ở góc trên để mở môi trường lập trình.</span>
+                                <span>Đừng vội xem đáp án nha!</span>
+                                <span className="text-xs opacity-70">Hãy thử code theo yêu cầu ở trên trước nhé.</span>
                               </div>
                           </div>
                         )}
