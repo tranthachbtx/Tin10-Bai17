@@ -2,7 +2,7 @@ import { GoogleGenAI, Chat } from "@google/genai";
 
 const apiKey = process.env.API_KEY || '';
 
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+export const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const createAiMentor = (lessonContext: string) => {
   if (!ai) return null;

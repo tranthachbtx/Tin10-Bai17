@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { MessageCircle, CheckCircle, ChevronRight, ChevronLeft, Send, X, Lightbulb, Terminal, Eye, EyeOff, AlertCircle, Info, Map, Star, Cloud, Code } from 'lucide-react';
 import { PYTHON_COURSE } from '../constants';
-import { createAiMentor } from '../services/gemini';
+import { createAiMentor, ai } from '../services/gemini';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Chat } from "@google/genai";
 
@@ -68,6 +68,7 @@ export const IDE: React.FC<IDEProps> = ({
     currentStepIndex, setCurrentStepIndex, isNavOpen, setIsNavOpen 
 }) => {
   const currentLesson = useMemo(() => PYTHON_COURSE.segments[currentStepIndex], [currentStepIndex]);
+  const isAiConfigured = useMemo(() => !!ai, []);
   
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -89,9 +90,13 @@ export const IDE: React.FC<IDEProps> = ({
     if (theoryScrollRef.current) {
         theoryScrollRef.current.scrollTo({ top: 0, behavior: 'instant' });
     }
-    chatSession.current = createAiMentor(currentLesson.content);
-    setChatMessages([{role: 'model', text: `Chào em! Thầy là trợ lý AI ảo. Bài học hiện tại là "${currentLesson.title}".`}]);
-  }, [currentLesson]);
+    if(isAiConfigured) {
+        chatSession.current = createAiMentor(currentLesson.content);
+        setChatMessages([{role: 'model', text: `Chào em! Thầy là trợ lý AI ảo. Bài học hiện tại là "${currentLesson.title}".`}]);
+    } else {
+        setChatMessages([{role: 'model', text: `Lỗi: Dịch vụ AI chưa được cấu hình. Vui lòng thêm API_KEY.`}]);
+    }
+  }, [currentLesson, isAiConfigured]);
 
   // Syntax Highlighting Effect
   useEffect(() => {
@@ -128,7 +133,7 @@ export const IDE: React.FC<IDEProps> = ({
   };
 
   const handleSendMessage = async () => {
-    if (!chatInput.trim() || !chatSession.current) return;
+    if (!chatInput.trim() || !chatSession.current || !isAiConfigured) return;
     const userMsg = chatInput;
     setChatMessages(p => [...p, {role: 'user', text: userMsg}]);
     setChatInput(''); setIsAiLoading(true);
@@ -391,12 +396,30 @@ export const IDE: React.FC<IDEProps> = ({
                     <div ref={messagesEndRef} />
                     {isAiLoading && <div className="flex gap-1 ml-4 mt-2"><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce"></div><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce delay-75"></div><div className="w-1.5 h-1.5 bg-electric-indigo rounded-full animate-bounce delay-150"></div></div>}
                  </div>
-                 <div className="p-3 border-t border-text-secondary/10 flex gap-2 bg-bg-main shrink-0"><input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendMessage()} className="flex-1 bg-text-secondary/5 border border-transparent rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:bg-bg-main focus:border-electric-indigo/50 transition-all font-medium" placeholder="Nhập câu hỏi..." /><button onClick={handleSendMessage} className="p-2.5 bg-electric-indigo text-white rounded-xl shadow-lg active:scale-95 transition-transform"><Send size={18}/></button></div>
+                 <div className="p-3 border-t border-text-secondary/10 flex gap-2 bg-bg-main shrink-0">
+                    <input 
+                        value={chatInput} 
+                        onChange={e => setChatInput(e.target.value)} 
+                        onKeyDown={e => e.key === 'Enter' && handleSendMessage()} 
+                        className="flex-1 bg-text-secondary/5 border border-transparent rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:bg-bg-main focus:border-electric-indigo/50 transition-all font-medium disabled:opacity-50" 
+                        placeholder={isAiConfigured ? "Nhập câu hỏi..." : "AI chưa sẵn sàng"}
+                        disabled={!isAiConfigured || isAiLoading}
+                    />
+                    <button 
+                        onClick={handleSendMessage} 
+                        className="p-2.5 bg-electric-indigo text-white rounded-xl shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!isAiConfigured || isAiLoading}
+                    >
+                        <Send size={18}/>
+                    </button>
+                 </div>
                </motion.div>
              )}
         </AnimatePresence>
         <div className="fixed md:absolute bottom-24 md:bottom-6 right-5 md:right-6 z-40">
-            <motion.button animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onClick={() => setIsChatOpen(!isChatOpen)} className="w-14 h-14 rounded-2xl bg-electric-indigo text-white flex items-center justify-center shadow-glow hover:scale-110 transition-transform active:scale-95 border-[3px] border-white/10">{isChatOpen ? <X size={28}/> : <span className="text-3xl">🤖</span>}</motion.button>
+            <motion.button animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onClick={() => setIsChatOpen(!isChatOpen)} className="w-14 h-14 rounded-2xl bg-electric-indigo text-white flex items-center justify-center shadow-glow hover:scale-110 transition-transform active:scale-95 border-[3px] border-white/10 disabled:bg-gray-400 disabled:shadow-none" disabled={!isAiConfigured}>
+                {isChatOpen ? <X size={28}/> : <span className="text-3xl">🤖</span>}
+            </motion.button>
         </div>
       </div>
     </div>
