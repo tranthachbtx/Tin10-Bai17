@@ -8,7 +8,7 @@ import { PYTHON_COURSE } from './constants';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>(ViewState.LANDING);
-  const [theme, setTheme] = useState<Theme>('neon');
+  const [theme, setTheme] = useState<Theme>('pastel');
   
   // --- Lifted IDE States for Layout Header Control ---
   const [currentStepIndex, setCurrentStepIndex] = useState(0);

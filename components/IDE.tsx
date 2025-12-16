@@ -34,7 +34,7 @@ const LearningGuide: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     { 
       title: "Giao diện", 
       icon: <LayoutTemplate size={48} className="text-cyber-cyan drop-shadow-md" />, 
-      content: "📱 Mobile: Dùng nút trên thanh tiêu đề để đổi Bài/Code.\n💻 Desktop: Tỷ lệ 70% Bài - 30% Code." 
+      content: "📱 Mobile: Dùng nút trên thanh tiêu đề để đổi Bài/Code.\n💻 Desktop: Tỷ lệ 60% Bài - 40% Code." 
     },
     { 
       title: "Thực hành", 
@@ -110,6 +110,8 @@ export const IDE: React.FC<IDEProps> = ({
 }) => {
   const currentLesson = useMemo(() => PYTHON_COURSE.segments[currentStepIndex], [currentStepIndex]);
   
+  const trinketUrl = useMemo(() => `https://trinket.io/embed/python3/${currentLesson.trinketId || 'a24811fa054e'}?font=1.2em`, [currentLesson]);
+  
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -181,9 +183,6 @@ export const IDE: React.FC<IDEProps> = ({
     finally { setIsAiLoading(false); }
   };
 
-  // 1.2em font size for mobile readability in trinket
-  const trinketUrl = useMemo(() => `https://trinket.io/embed/python3/${currentLesson.trinketId || 'a24811fa054e'}?font=1.2em`, [currentLesson]);
-
   // Updated typoClass with optimized colors for dark mode neon/glass
   const typoClass = `
     prose max-w-none mx-auto font-soft
@@ -233,10 +232,10 @@ export const IDE: React.FC<IDEProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Theory Column - 70% Width on Desktop */}
+      {/* Theory Column - 60% Width on Desktop */}
       <div className={`flex-col z-20 h-full transition-all duration-300 
           ${mobileTab === 'theory' ? 'flex w-full pt-[0px] md:pt-0' : 'hidden'} 
-          ${desktopViewMode === 'theory' ? 'md:flex md:w-full md:justify-center' : 'md:flex md:w-[70%]'} 
+          ${desktopViewMode === 'theory' ? 'md:flex md:w-full md:justify-center' : 'md:flex md:w-[60%]'} 
           bg-bg-main`}
           onTouchStart={(e) => {
               // Simple Swipe Logic (Left to go Code)
@@ -360,7 +359,10 @@ export const IDE: React.FC<IDEProps> = ({
                     <AnimatePresence>
                         {showCodeSuggestion ? (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-                              <div className="p-4 md:p-6 bg-[#1E1E1E] text-[#A9B7C6] font-mono text-[15px] md:text-base overflow-x-auto whitespace-pre leading-relaxed">
+                              <div 
+                                className="p-4 md:p-6 bg-[#1E1E1E] text-[#A9B7C6] font-mono text-[15px] md:text-base overflow-x-auto whitespace-pre leading-relaxed select-none"
+                                onCopy={(e) => e.preventDefault()}
+                              >
                                   {currentLesson.codeSnippet}
                               </div>
                           </motion.div>
@@ -408,8 +410,8 @@ export const IDE: React.FC<IDEProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Code Column - 30% Width on Desktop (Split) */}
-      <div className={`flex-col relative bg-bg-main p-0 md:p-2 justify-center items-center h-full ${mobileTab === 'code' ? 'flex w-full pt-[0px] md:pt-0' : 'hidden'} ${desktopViewMode === 'split' ? 'md:flex md:w-[30%]' : 'md:hidden'}`}>
+      {/* Code Column - 40% Width on Desktop (Split) */}
+      <div className={`flex-col relative bg-bg-main p-0 md:p-2 justify-center items-center h-full ${mobileTab === 'code' ? 'flex w-full pt-[0px] md:pt-0' : 'hidden'} ${desktopViewMode === 'split' ? 'md:flex md:w-[40%]' : 'md:hidden'}`}>
         <div className="w-full h-full flex flex-col md:rounded-2xl neu-out overflow-hidden bg-[#1a1a2e] border border-white/5">
             <div className="h-10 bg-[#212121] flex items-center justify-between px-3 select-none shrink-0 border-b border-white/5">
                 <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div><div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div><div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div></div>
