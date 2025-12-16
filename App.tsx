@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ViewState, Theme, UserProgress, DesktopViewMode, MobileTab } from './types';
+import { ViewState, Theme, UserProgress } from './types';
 import { Layout } from './components/Layout';
 import { Landing } from './components/Landing';
 import { Dashboard } from './components/Dashboard';
@@ -12,28 +12,15 @@ const App: React.FC = () => {
   
   // --- Lifted IDE States for Layout Header Control ---
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [desktopViewMode, setDesktopViewMode] = useState<DesktopViewMode>('split');
-  const [mobileTab, setMobileTab] = useState<MobileTab>('theory'); // New lifted state
   const [isNavOpen, setIsNavOpen] = useState(false);
   
-  const currentLessonTitle = useMemo(() => 
-    PYTHON_COURSE.segments[currentStepIndex]?.title || "Bài học", 
-  [currentStepIndex]);
-
-  // Lifted Guide State
-  const [showGuide, setShowGuide] = useState(() => {
-    try {
-        const hasSeen = localStorage.getItem('hasSeenGuide_v5');
-        return !hasSeen;
-    } catch {
-        return false;
-    }
-  });
-
-  const handleCloseGuide = () => {
-    setShowGuide(false);
-    localStorage.setItem('hasSeenGuide_v5', 'true');
-  };
+  const currentLesson = useMemo(() => PYTHON_COURSE.segments[currentStepIndex], [currentStepIndex]);
+  const currentLessonTitle = currentLesson?.title || "Bài học";
+  
+  // Generate Trinket URL for the Header Button
+  const currentTrinketUrl = useMemo(() => 
+    `https://trinket.io/python3/${currentLesson?.trinketId || 'a24811fa054e'}`, 
+  [currentLesson]);
 
   const [userProgress, setUserProgress] = useState<UserProgress>({
     xp: 0,
@@ -75,13 +62,9 @@ const App: React.FC = () => {
       setView={setView} 
       currentTheme={theme} 
       setTheme={setTheme}
-      onShowGuide={() => setShowGuide(true)}
       // IDE Props passed to Layout for Header
       currentLessonTitle={currentLessonTitle}
-      desktopViewMode={desktopViewMode}
-      setDesktopViewMode={setDesktopViewMode}
-      mobileTab={mobileTab}
-      setMobileTab={setMobileTab}
+      trinketUrl={currentTrinketUrl}
       isNavOpen={isNavOpen}
       setIsNavOpen={setIsNavOpen}
     >
@@ -98,13 +81,9 @@ const App: React.FC = () => {
         <IDE 
             onCompleteSegment={handleCompleteSegment} 
             onExit={() => setView(ViewState.DASHBOARD)}
-            showGuide={showGuide}
-            onCloseGuide={handleCloseGuide}
             // Controlled Props
             currentStepIndex={currentStepIndex}
             setCurrentStepIndex={setCurrentStepIndex}
-            desktopViewMode={desktopViewMode}
-            mobileTab={mobileTab}
             isNavOpen={isNavOpen}
             setIsNavOpen={setIsNavOpen}
         />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ViewState, Theme, DesktopViewMode, MobileTab } from '../types';
-import { Sun, Moon, HelpCircle, List, BookOpen, Columns, Code as CodeIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ViewState, Theme } from '../types';
+import { Sun, Moon, List, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,21 +9,17 @@ interface LayoutProps {
   setView: (v: ViewState) => void;
   currentTheme: Theme;
   setTheme: (t: Theme) => void;
-  onShowGuide: () => void;
   
   // New props for IDE Header Controls
   currentLessonTitle?: string;
-  desktopViewMode?: DesktopViewMode;
-  setDesktopViewMode?: (mode: DesktopViewMode) => void;
-  mobileTab?: MobileTab;
-  setMobileTab?: (tab: MobileTab) => void;
+  trinketUrl?: string;
   isNavOpen?: boolean;
   setIsNavOpen?: (open: boolean) => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ 
-  children, view, setView, currentTheme, setTheme, onShowGuide,
-  currentLessonTitle, desktopViewMode, setDesktopViewMode, mobileTab, setMobileTab, setIsNavOpen 
+  children, view, setView, currentTheme, setTheme,
+  currentLessonTitle, trinketUrl, setIsNavOpen 
 }) => {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastY = useRef(0);
@@ -52,6 +48,9 @@ export const Layout: React.FC<LayoutProps> = ({
       if (e.deltaY < 0 && !isNavVisible) setIsNavVisible(true);
     };
 
+    // Only add listeners if content is scrollable (not applicable in fixed IDE layout, but good for Dashboard)
+    // For fixed layout, we rely on inner scroll, so global listeners might need tweaking.
+    // However, keeping them simply doesn't hurt.
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
     return () => {
@@ -95,7 +94,8 @@ export const Layout: React.FC<LayoutProps> = ({
   const toggleTheme = () => setTheme(currentTheme === 'neon' ? 'pastel' : 'neon');
 
   return (
-    <div className="min-h-screen relative font-soft text-text-primary transition-colors duration-300" style={{ background: 'var(--bg-main)' }}>
+    // FIXED: h-screen and overflow-hidden ensures the body never scrolls, only inner content
+    <div className="h-screen w-screen overflow-hidden relative font-soft text-text-primary transition-colors duration-300 flex flex-col" style={{ background: 'var(--bg-main)' }}>
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none opacity-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150 mix-blend-overlay"></div>
 
@@ -104,10 +104,10 @@ export const Layout: React.FC<LayoutProps> = ({
         initial={{ y: 0 }}
         animate={{ y: isNavVisible ? 0 : '-100%' }}
         transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-        className="fixed top-0 w-full z-50 px-4 py-2 flex justify-between items-center glass-panel shadow-neu-out rounded-b-3xl mx-auto max-w-7xl left-0 right-0 border-b border-white/20"
+        className="fixed top-0 w-full z-50 px-4 py-2 flex justify-between items-center glass-panel shadow-neu-out rounded-b-3xl mx-auto max-w-7xl left-0 right-0 border-b border-white/20 h-[64px]"
       >
         {/* Left: Logo or Lesson Controls */}
-        <div className="flex items-center gap-3 truncate max-w-[60%]">
+        <div className="flex items-center gap-3 truncate max-w-[50%] md:max-w-[40%]">
           {view === ViewState.IDE ? (
             // IDE MODE: Show Lesson Controls + Title
             <>
@@ -133,54 +133,40 @@ export const Layout: React.FC<LayoutProps> = ({
           )}
         </div>
         
-        {/* Right: Controls */}
+        {/* Right: Controls & Actions */}
         <div className="flex gap-2 items-center shrink-0">
           
-          {/* View Mode Switcher (Only in IDE) */}
-          {view === ViewState.IDE && (
-            <>
-                {/* Desktop Switcher */}
-                {setDesktopViewMode && (
-                  <div className="hidden md:flex gap-2 mr-2">
-                    <button 
-                        onClick={() => setDesktopViewMode('theory')} 
-                        className={`p-2 rounded-xl transition-all ${desktopViewMode === 'theory' ? 'neu-inset text-electric-indigo shadow-inner' : 'neu-btn text-text-secondary'}`}
-                        title="Chỉ đọc"
-                    >
-                        <BookOpen size={18} />
-                    </button>
-                    <button 
-                        onClick={() => setDesktopViewMode('split')} 
-                        className={`p-2 rounded-xl transition-all ${desktopViewMode === 'split' ? 'neu-inset text-electric-indigo shadow-inner' : 'neu-btn text-text-secondary'}`}
-                        title="Song song"
-                    >
-                        <Columns size={18} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Mobile Tab Switcher (Replaces Guide on Mobile) */}
-                {setMobileTab && (
-                    <button 
-                        onClick={() => setMobileTab(mobileTab === 'theory' ? 'code' : 'theory')} 
-                        className="md:hidden w-10 h-10 flex items-center justify-center rounded-full text-text-secondary hover:text-electric-indigo neu-btn active:neu-inset transition-colors active:scale-95 border border-electric-indigo/20"
-                        title="Chuyển đổi Bài/Code"
-                    >
-                        {mobileTab === 'theory' ? <CodeIcon size={20} className="text-text-secondary" /> : <BookOpen size={20} className="text-electric-indigo" />}
-                    </button>
-                )}
-            </>
+          {/* TRINKET BUTTON - Only in IDE Mode */}
+          {view === ViewState.IDE && trinketUrl && (
+            <motion.a 
+                href={trinketUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                whileHover={{ scale: 1.1, backgroundColor: 'var(--color-accent)', color: '#fff' }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden md:flex neu-btn px-4 py-2 rounded-xl text-white font-bold text-sm items-center gap-2 shadow-glow bg-electric-indigo border border-white/20"
+            >
+                <ExternalLink size={16} />
+                <span>Thực hành (Trinket)</span>
+            </motion.a>
           )}
 
-          {/* Guide Button (Hidden on Mobile in IDE to save space for toggle, visible on Desktop) */}
-          <button
-            onClick={onShowGuide}
-            className={`w-10 h-10 flex items-center justify-center rounded-full text-text-secondary hover:text-electric-indigo neu-btn active:neu-inset transition-colors active:scale-95 ${view === ViewState.IDE ? 'hidden md:flex' : 'flex'}`}
-            title="Hướng dẫn"
-          >
-            <HelpCircle size={20} />
-          </button>
-          
+          {/* Mobile Icon Only Trinket Button */}
+          {view === ViewState.IDE && trinketUrl && (
+            <motion.a 
+                href={trinketUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileTap={{ scale: 0.9 }}
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-electric-indigo text-white shadow-glow border border-white/20"
+            >
+                <ExternalLink size={20} />
+            </motion.a>
+          )}
+
           <button 
             onClick={toggleTheme}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all neu-btn active:neu-inset active:scale-95 ${currentTheme === 'neon' ? 'text-yellow-400' : 'text-electric-indigo'}`}
@@ -190,7 +176,9 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </motion.nav>
 
-      <main className="pt-[64px] min-h-screen">
+      {/* Main Content Area */}
+      {/* pt-[64px] accounts for fixed navbar. overflow-hidden prevents body scroll. h-full fills screen. */}
+      <main className="pt-[64px] h-full w-full flex flex-col overflow-hidden">
         {children}
       </main>
     </div>

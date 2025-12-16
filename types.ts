@@ -6,10 +6,6 @@ export enum ViewState {
 
 export type Theme = 'neon' | 'pastel';
 
-// Exported for global use in App and Layout
-export type DesktopViewMode = 'split' | 'theory';
-export type MobileTab = 'theory' | 'code';
-
 export interface QuizOption {
   id: string;
   text: string;
