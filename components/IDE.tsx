@@ -324,7 +324,7 @@ export const IDE: React.FC<IDEProps> = ({
                         {showCodeSuggestion ? (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                               <div className="bg-[#282c34]">
-                                <pre className="m-0 p-4 md:p-6 overflow-x-auto custom-scrollbar">
+                                <pre className="m-0 p-4 md:p-6 overflow-x-auto custom-scrollbar no-copy">
                                     <code 
                                       ref={codeRef}
                                       className="language-python font-mono text-[15px] md:text-base leading-relaxed bg-transparent"
