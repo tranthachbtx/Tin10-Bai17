@@ -16,6 +16,53 @@ interface IDEProps {
   setIsNavOpen: (open: boolean) => void;
 }
 
+const Confetti: React.FC = () => {
+  const particles = useMemo(() => Array.from({ length: 50 }).map((_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: -20 - Math.random() * 30,
+    r: Math.random() * 720 - 360,
+    scale: 0.4 + Math.random() * 0.8,
+    color: ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF0055', '#8B80F9', '#00E676'][Math.floor(Math.random() * 6)]
+  })), []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100] flex items-center justify-center overflow-hidden">
+      {/* Particles */}
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ y: `${p.y}vh`, x: `${p.x}vw`, rotate: 0, opacity: 1 }}
+          animate={{ y: '120vh', rotate: p.r, opacity: [1, 1, 0] }}
+          transition={{ duration: 2.5 + Math.random(), ease: "easeOut", delay: Math.random() * 0.3 }}
+          className="absolute w-4 h-4 rounded-sm shadow-sm"
+          style={{ backgroundColor: p.color, left: 0, top: 0 }}
+        />
+      ))}
+      
+      {/* Congratulatory Message */}
+      <motion.div 
+        initial={{ scale: 0.5, opacity: 0, y: 50, rotate: -5 }}
+        animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
+        exit={{ scale: 1.2, opacity: 0, rotate: 5 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className="relative z-10 bg-white/90 dark:bg-[#212121]/90 backdrop-blur-xl p-8 md:p-12 rounded-[40px] shadow-2xl border-4 border-white/20 text-center max-w-md mx-4"
+      >
+         <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-6xl animate-bounce">🏆</div>
+         <h2 className="text-4xl md:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-electric-indigo to-neon-serpent mb-3 mt-4">
+            XUẤT SẮC!
+         </h2>
+         <p className="text-lg text-text-secondary font-soft font-bold">Bạn đã hoàn thành bài học này!</p>
+         <div className="mt-4 flex justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-electric-indigo animate-ping"></div>
+            <div className="w-2 h-2 rounded-full bg-neon-serpent animate-ping delay-100"></div>
+            <div className="w-2 h-2 rounded-full bg-hot-coral animate-ping delay-200"></div>
+         </div>
+      </motion.div>
+    </div>
+  );
+};
+
 export const IDE: React.FC<IDEProps> = ({ 
     onCompleteSegment, onExit, 
     currentStepIndex, setCurrentStepIndex, isNavOpen, setIsNavOpen 
@@ -48,10 +95,21 @@ export const IDE: React.FC<IDEProps> = ({
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages, isChatOpen]);
 
   const handleManualCompletion = () => {
+    // 1. Play Confetti
     setShowConfetti(true);
+    
+    // 2. Award XP
     onCompleteSegment(currentLesson.id, currentLesson.xpReward);
-    if (currentStepIndex < PYTHON_COURSE.segments.length - 1) setTimeout(() => { setCurrentStepIndex(p => p + 1); setShowConfetti(false); }, 2000);
-    else setTimeout(onExit, 2500);
+    
+    // 3. Move to next lesson after delay
+    if (currentStepIndex < PYTHON_COURSE.segments.length - 1) {
+        setTimeout(() => { 
+            setShowConfetti(false);
+            setCurrentStepIndex(p => p + 1); 
+        }, 3000); // Increased to 3s to enjoy the animation
+    } else {
+        setTimeout(onExit, 3500);
+    }
   };
 
   const handleQuizSelect = (qId: string, oId: string, isCorrect: boolean) => {
@@ -87,6 +145,11 @@ export const IDE: React.FC<IDEProps> = ({
     // FIXED: h-full ensures it takes exactly the remaining space from Layout's main, fixing scroll issues
     <div className="flex flex-col h-full bg-bg-main text-text-primary overflow-hidden transition-colors duration-300 relative select-none md:select-auto font-soft">
       
+      {/* Confetti Overlay */}
+      <AnimatePresence>
+        {showConfetti && <Confetti key="confetti" />}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isNavOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex justify-start" onClick={() => setIsNavOpen(false)}>

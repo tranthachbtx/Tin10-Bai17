@@ -6,6 +6,11 @@ export enum ViewState {
 
 export type Theme = 'neon' | 'pastel';
 
+export interface CustomColors {
+  primary: string; // Maps to --color-primary (electric-indigo)
+  accent: string;  // Maps to --color-accent (neon-serpent)
+}
+
 export interface QuizOption {
   id: string;
   text: string;

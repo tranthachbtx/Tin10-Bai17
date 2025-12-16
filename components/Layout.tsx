@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ViewState, Theme } from '../types';
-import { Sun, Moon, List, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ViewState, Theme, CustomColors } from '../types';
+import { Sun, Moon, List, ExternalLink, Palette, RotateCcw, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +10,10 @@ interface LayoutProps {
   currentTheme: Theme;
   setTheme: (t: Theme) => void;
   
+  // Custom Color Props
+  customColors: CustomColors;
+  setCustomColors: (c: CustomColors) => void;
+
   // New props for IDE Header Controls
   currentLessonTitle?: string;
   trinketUrl?: string;
@@ -19,9 +23,11 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ 
   children, view, setView, currentTheme, setTheme,
+  customColors, setCustomColors,
   currentLessonTitle, trinketUrl, setIsNavOpen 
 }) => {
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const lastY = useRef(0);
 
   // Auto-Hiding Navbar Logic (Mobile Touch & Desktop Wheel)
@@ -30,7 +36,7 @@ export const Layout: React.FC<LayoutProps> = ({
       const diff = currentY - lastY.current;
       
       // Finger moves UP (diff < 0) -> Scrolling DOWN -> HIDE Navbar
-      if (diff < -10 && isNavVisible) setIsNavVisible(false);
+      if (diff < -10 && isNavVisible && !showColorPicker) setIsNavVisible(false); // Don't hide if picker open
       
       // Finger moves DOWN (diff > 0) -> Scrolling UP -> SHOW Navbar
       else if (diff > 10 && !isNavVisible) setIsNavVisible(true);
@@ -43,21 +49,18 @@ export const Layout: React.FC<LayoutProps> = ({
     // Desktop Wheel Logic
     const handleWheel = (e: WheelEvent) => {
       // DeltaY > 0 is scrolling down -> Hide
-      if (e.deltaY > 0 && isNavVisible) setIsNavVisible(false); 
+      if (e.deltaY > 0 && isNavVisible && !showColorPicker) setIsNavVisible(false); 
       // DeltaY < 0 is scrolling up -> Show
       if (e.deltaY < 0 && !isNavVisible) setIsNavVisible(true);
     };
 
-    // Only add listeners if content is scrollable (not applicable in fixed IDE layout, but good for Dashboard)
-    // For fixed layout, we rely on inner scroll, so global listeners might need tweaking.
-    // However, keeping them simply doesn't hurt.
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
     return () => {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [isNavVisible]);
+  }, [isNavVisible, showColorPicker]);
 
   // Apply Theme Variables
   useEffect(() => {
@@ -66,8 +69,11 @@ export const Layout: React.FC<LayoutProps> = ({
       document.body.classList.add('dark');
       root.style.setProperty('--bg-main', '#212121');
       root.style.setProperty('--color-panel', 'rgba(35, 35, 35, 0.8)');
-      root.style.setProperty('--color-primary', '#8B80F9');
-      root.style.setProperty('--color-accent', '#00E676');
+      
+      // Apply Custom Colors in Neon Mode
+      root.style.setProperty('--color-primary', customColors.primary);
+      root.style.setProperty('--color-accent', customColors.accent);
+      
       root.style.setProperty('--color-danger', '#FF5252');
       root.style.setProperty('--color-info', '#40C4FF');
       root.style.setProperty('--text-primary', '#E0E0E0');
@@ -89,9 +95,16 @@ export const Layout: React.FC<LayoutProps> = ({
       root.style.setProperty('--shadow-in', 'inset 6px 6px 10px 0 rgba(163,177,198, 0.6), inset -6px -6px 10px 0 rgba(255,255,255, 0.7)');
       root.style.setProperty('--bg-mesh', 'linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)');
     }
-  }, [currentTheme]);
+  }, [currentTheme, customColors]);
 
-  const toggleTheme = () => setTheme(currentTheme === 'neon' ? 'pastel' : 'neon');
+  const toggleTheme = () => {
+      setTheme(currentTheme === 'neon' ? 'pastel' : 'neon');
+      setShowColorPicker(false); // Close picker on theme switch
+  };
+
+  const handleResetColors = () => {
+      setCustomColors({ primary: '#8B80F9', accent: '#00E676' });
+  };
 
   return (
     // FIXED: h-screen and overflow-hidden ensures the body never scrolls, only inner content
@@ -134,7 +147,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
         
         {/* Right: Controls & Actions */}
-        <div className="flex gap-2 items-center shrink-0">
+        <div className="flex gap-2 items-center shrink-0 relative">
           
           {/* TRINKET BUTTON - Only in IDE Mode */}
           {view === ViewState.IDE && trinketUrl && (
@@ -167,12 +180,74 @@ export const Layout: React.FC<LayoutProps> = ({
             </motion.a>
           )}
 
+          {/* Color Picker Toggle (Only in Neon Mode) */}
+          {currentTheme === 'neon' && (
+              <button 
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className={`w-10 h-10 flex items-center justify-center rounded-full transition-all neu-btn active:neu-inset active:scale-95 ${showColorPicker ? 'bg-white/10 text-white' : 'text-text-secondary'}`}
+                title="Tùy chỉnh màu"
+              >
+                <Palette size={20} />
+              </button>
+          )}
+
           <button 
             onClick={toggleTheme}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all neu-btn active:neu-inset active:scale-95 ${currentTheme === 'neon' ? 'text-yellow-400' : 'text-electric-indigo'}`}
           >
             {currentTheme === 'neon' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+
+          {/* Color Picker Popover */}
+          <AnimatePresence>
+              {showColorPicker && currentTheme === 'neon' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-14 right-0 w-64 glass-panel bg-bg-main/95 p-4 rounded-2xl shadow-2xl border border-white/10 z-[60] flex flex-col gap-4"
+                  >
+                      <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                          <span className="font-bold text-sm text-text-primary">Tùy chỉnh Neon</span>
+                          <button onClick={() => setShowColorPicker(false)} className="text-text-secondary hover:text-white"><X size={16}/></button>
+                      </div>
+
+                      <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                              <label className="text-xs font-medium text-text-secondary">Màu Chủ Đạo</label>
+                              <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-mono opacity-50">{customColors.primary}</span>
+                                  <input 
+                                    type="color" 
+                                    value={customColors.primary} 
+                                    onChange={(e) => setCustomColors({...customColors, primary: e.target.value})}
+                                    className="w-8 h-8 rounded-full cursor-pointer bg-transparent border-none p-0"
+                                  />
+                              </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                              <label className="text-xs font-medium text-text-secondary">Màu Điểm Nhấn</label>
+                              <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-mono opacity-50">{customColors.accent}</span>
+                                  <input 
+                                    type="color" 
+                                    value={customColors.accent} 
+                                    onChange={(e) => setCustomColors({...customColors, accent: e.target.value})}
+                                    className="w-8 h-8 rounded-full cursor-pointer bg-transparent border-none p-0"
+                                  />
+                              </div>
+                          </div>
+                      </div>
+
+                      <button 
+                        onClick={handleResetColors}
+                        className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-text-secondary flex items-center justify-center gap-2 transition-colors border border-white/5"
+                      >
+                          <RotateCcw size={14} /> Khôi phục mặc định
+                      </button>
+                  </motion.div>
+              )}
+          </AnimatePresence>
         </div>
       </motion.nav>
 

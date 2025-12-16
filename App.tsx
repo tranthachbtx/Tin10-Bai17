@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ViewState, Theme, UserProgress } from './types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ViewState, Theme, UserProgress, CustomColors } from './types';
 import { Layout } from './components/Layout';
 import { Landing } from './components/Landing';
 import { Dashboard } from './components/Dashboard';
@@ -9,6 +9,17 @@ import { PYTHON_COURSE } from './constants';
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>(ViewState.LANDING);
   const [theme, setTheme] = useState<Theme>('pastel');
+  
+  // --- Custom Color State with Persistence ---
+  const [customColors, setCustomColors] = useState<CustomColors>(() => {
+    const saved = localStorage.getItem('neon_colors');
+    return saved ? JSON.parse(saved) : { primary: '#8B80F9', accent: '#00E676' };
+  });
+
+  // Save to localStorage whenever colors change
+  useEffect(() => {
+    localStorage.setItem('neon_colors', JSON.stringify(customColors));
+  }, [customColors]);
   
   // --- Lifted IDE States for Layout Header Control ---
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -62,6 +73,8 @@ const App: React.FC = () => {
       setView={setView} 
       currentTheme={theme} 
       setTheme={setTheme}
+      customColors={customColors}
+      setCustomColors={setCustomColors}
       // IDE Props passed to Layout for Header
       currentLessonTitle={currentLessonTitle}
       trinketUrl={currentTrinketUrl}
